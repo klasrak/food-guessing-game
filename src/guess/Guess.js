@@ -1,8 +1,9 @@
-/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-continue */
+/* eslint-disable array-callback-return */
+/* eslint-disable consistent-return */
 /* eslint-disable no-console */
-const readline = require('readline-sync');
+/* eslint-disable no-restricted-syntax */
 const InvalidInstanceError = require('../errors/InvalidInstanceError');
-const InvalidTypeError = require('../errors/InvalidTypeError');
 const { isInstanceOf } = require('../utils');
 
 function isOk(choice) {
@@ -10,124 +11,144 @@ function isOk(choice) {
   return false;
 }
 
-function askUserAbout(about, name) {
-  switch (about) {
-    case 'category':
-      return readline.question(`A comida que você pensou é ${name}? (s/n) `);
-    case 'food':
-      return readline.question(`Você pensou em ${name}? (s/n) `);
-    default:
-      break;
-  }
-  return false;
-}
-
-class Guess {
-  constructor(category, food) {
-    this.counter = 0;
+class GuessingGame {
+  constructor(category, food, input) {
     this.Category = category;
     this.Food = food;
+    this.input = input;
     this.categoryList = [];
-    this.foodList = [];
+    this.counter = 0;
     this.populateFirstQuestion();
   }
 
-  createNewCategory(name) {
-    if (typeof name === 'string' && name !== '') {
-      return new this.Category(name);
-    }
-    throw new InvalidTypeError(name);
-  }
-
-  createNewFood(name) {
-    if (typeof name === 'string' && name !== '') {
-      return new this.Food(name);
-    }
-    throw new InvalidTypeError(name);
-  }
-
-  appendFoodToCategory(food, category) {
-    if (
-      isInstanceOf(food, this.Food) &&
-      isInstanceOf(category, this.Category)
-    ) {
-      category.insertFood(food);
-    } else if (!isInstanceOf(food, this.Food)) {
-      throw new InvalidInstanceError(food, this.Food);
-    } else {
-      throw new InvalidInstanceError(category, this.Category);
-    }
-  }
-
-  appendCategoryToList(category) {
-    if (isInstanceOf(category, this.Category)) {
-      this.categoryList.push(category);
-    } else {
-      throw new InvalidInstanceError(category, this.Category);
-    }
-  }
-
-  appendFoodToList(food) {
-    if (isInstanceOf(food, this.Food)) {
-      this.foodList.push(food);
-    } else {
-      throw new InvalidInstanceError(food, this.Food);
-    }
-  }
-
   populateFirstQuestion() {
-    const lasanha = this.createNewFood('lasanha');
-    const massa = this.createNewCategory('massa');
-    const bolo = this.createNewFood('bolo de chocolate');
-    const doce = this.createNewCategory('doce');
+    const massa = this.createCategory('massa');
+    const lasanha = this.createFood('lasanha');
 
-    this.appendFoodToCategory(lasanha, massa);
-    this.appendFoodToCategory(bolo, doce);
+    const doce = this.createCategory('doce');
+    const bolo = this.createFood('bolo de chocolate');
 
-    this.appendCategoryToList(massa);
-    this.appendCategoryToList(doce);
-    this.appendFoodToList(lasanha);
-    this.appendFoodToList(bolo);
+    massa.insertFood(lasanha);
+    doce.insertFood(bolo);
+
+    this.categoryList.push(massa, doce);
   }
 
-  handleNewCategory(current) {
-    const name = readline.question('Digite uma nova categoria: ');
-    const category = this.createNewCategory(name);
+  createCategory(name) {
+    return new this.Category(name);
+  }
 
-    if (category && category.name !== current) {
-      console.log(`Nova categoria ${category.name}`);
+  createFood(name) {
+    return new this.Food(name);
+  }
+
+  inquireCategory(category) {
+    const answer = this.input.question(
+      `Você pensou em ${category.name}? (s/n) `
+    );
+    return isOk(answer);
+  }
+
+  inquireAboutFoodName(food) {
+    const answer = this.input.question(
+      `O prato que você pensou é ${food.name} (s/n) `
+    );
+    return isOk(answer);
+  }
+
+  inquireAboutFoodAttribute(food) {
+    if (isInstanceOf(food, this.Food) && food.attribute) {
+      const answer = this.input.question(
+        `O prato que você pensou é ${food.attribute} (s/n) `
+      );
+      return isOk(answer);
+    }
+    throw new InvalidInstanceError(food, this.Food);
+  }
+
+  inquireNewFood(food, category) {
+    if (category && isInstanceOf(category, this.Category)) {
+      const answer = this.input.question(`Qual prato você pensou? `);
+      const newFood = this.createFood(answer);
+      if (!food) {
+        return category.foods.push(newFood);
+      }
+      const attribute = this.input.question(
+        `${newFood.name} é _____________ mas ${food.name} não. `
+      );
+      newFood.insertAttribute(attribute);
+      return category.foods.push(newFood);
     }
   }
 
-  startGuessingGame() {
-    for (const category of this.categoryList) {
-      const answer = askUserAbout('category', category.name);
+  getFoodByCategory(category, food) {
+    if (
+      isInstanceOf(category, this.Category) &&
+      isInstanceOf(food, this.Food)
+    ) {
+      let ok;
+      if (food.attribute) {
+        const found = category.foods.map(f => {
+          if (f.attribute === food.attribute) {
+            return f;
+          }
+        });
+        console.log(found);
 
-      if (answer && isOk(answer)) {
-        for (const food of category.foods) {
-          const foodAnswer = askUserAbout('food', food.name);
+        if (found && found.length > 0) {
+          for (const f of found) {
+            if (f === undefined) {
+              continue;
+            }
+            ok = this.inquireAboutFoodName(f);
 
-          if (foodAnswer && isOk(foodAnswer)) {
-            console.log('Acertei!');
-            break;
+            if (ok) {
+              return this.win(f);
+            }
           }
         }
-        break;
       }
     }
-    this.handleNewCategory();
+  }
+
+  handlerInCategory(category) {
+    let ok;
+    let currentFood;
+    for (const food of category.foods) {
+      currentFood = food;
+      if (category.foods.indexOf(food) === 0) {
+        ok = this.inquireAboutFoodName(food);
+        if (ok) {
+          return this.win(food);
+        }
+      } else {
+        ok = this.inquireAboutFoodAttribute(food);
+      }
+      if (ok) {
+        return this.getFoodByCategory(category, food);
+      }
+    }
+    return this.inquireNewFood(currentFood, category);
+  }
+
+  win(food) {
     this.counter += 1;
-    console.log(`Você já jogou ${this.counter} jogo(s)`);
+    console.log(`Acertei! Você pensou em ${food.name}`);
   }
 
-  endGame() {
-    console.log(`Você jogou ${this.counter} vezes!`);
-    process.exit(0);
-  }
+  startGuessing() {
+    let ok;
+    for (const category of this.categoryList) {
+      ok = this.inquireCategory(category);
 
-  start() {
-    this.startGuessingGame();
+      if (ok) {
+        return this.handlerInCategory(category);
+      }
+    }
+    const answer = this.input.question('No que você pensou? ');
+    const newCategory = this.createCategory(answer);
+    return this.categoryList.push(newCategory);
   }
 }
 
-module.exports = Guess;
+module.exports = GuessingGame;
