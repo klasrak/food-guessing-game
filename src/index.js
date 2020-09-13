@@ -31,6 +31,7 @@ function keepPlaying(answer = true) {
 
 function startGame() {
   welcome();
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     guessingGame.startGuessing();
     const answer = readline.question('Deseja continuar jogando? (s/n) ');
