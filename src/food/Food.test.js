@@ -17,11 +17,6 @@ describe('Food test', () => {
     expect(sut.name).toBe('Test food');
   });
 
-  it('should be instantiate with empty list of attributes', () => {
-    const sut = makeSut();
-    expect(sut.attributes).toHaveLength(0);
-  });
-
   it('should throw if call the insertAttribute with a parameter that does not have the type "string"', () => {
     const sut = makeSut();
 
@@ -32,7 +27,7 @@ describe('Food test', () => {
     expect(insertAttribute).toThrowError(InvalidTypeError);
   });
 
-  it('should have and array of attributes if method insertAttribute is called corretcly', () => {
+  it('should have an attribute if method insertAttribute is called corretcly', () => {
     const sut = makeSut();
 
     function insertAttribute() {
@@ -40,6 +35,6 @@ describe('Food test', () => {
     }
 
     expect(insertAttribute).not.toThrowError();
-    expect(sut.attributes).toHaveLength(1);
+    expect(sut.attribute).toBe('tasty');
   });
 });
