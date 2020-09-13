@@ -88,7 +88,6 @@ class GuessingGame {
             return f;
           }
         });
-        console.log(found);
 
         if (found && found.length > 0) {
           for (const f of found) {
