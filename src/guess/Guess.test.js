@@ -6,6 +6,7 @@ const readline = require('readline-sync');
 const Guess = require('./Guess');
 const Food = require('../food/Food');
 const Category = require('../category/Category');
+const InvalidInstanceError = require('../errors/InvalidInstanceError');
 
 function makeSut() {
   return new Guess(Category, Food, readline);
@@ -14,6 +15,14 @@ function makeSut() {
 const createGuessStub = () => {
   class GuessStub {
     inquireCategory() {
+      return true;
+    }
+
+    inquireAboutFoodName() {
+      return true;
+    }
+
+    inquireAboutFoodAttribute() {
       return true;
     }
   }
@@ -83,6 +92,50 @@ describe('Guess test', () => {
 
     expect(stub.inquireCategory).not.toThrow();
     expect(stub.inquireCategory).toHaveBeenCalledWith('s');
+    expect(value).toBe(true);
+  });
+
+  it('should return false if call inquireAboutFoodName with a parameter !== "s"', () => {
+    const stub = createGuessStub();
+    jest.spyOn(stub, 'inquireAboutFoodName').mockReturnValueOnce(false);
+
+    const value = stub.inquireAboutFoodName('n');
+
+    expect(stub.inquireAboutFoodName).not.toThrow();
+    expect(stub.inquireAboutFoodName).toHaveBeenCalledWith('n');
+    expect(value).toBe(false);
+  });
+
+  it('should return true if call inquireAboutFoodName with "s" parameter', () => {
+    const stub = createGuessStub();
+    jest.spyOn(stub, 'inquireAboutFoodName');
+
+    const value = stub.inquireAboutFoodName('s');
+
+    expect(stub.inquireAboutFoodName).not.toThrow();
+    expect(stub.inquireAboutFoodName).toHaveBeenCalledWith('s');
+    expect(value).toBe(true);
+  });
+
+  it('should return false if call inquireAboutFoodAttribute with a parameter !== "s"', () => {
+    const stub = createGuessStub();
+    jest.spyOn(stub, 'inquireAboutFoodAttribute').mockReturnValueOnce(false);
+
+    const value = stub.inquireAboutFoodAttribute('n');
+
+    expect(stub.inquireAboutFoodAttribute).not.toThrow();
+    expect(stub.inquireAboutFoodAttribute).toHaveBeenCalledWith('n');
+    expect(value).toBe(false);
+  });
+
+  it('should return true if call inquireAboutFoodAttribute with "s" parameter', () => {
+    const stub = createGuessStub();
+    jest.spyOn(stub, 'inquireAboutFoodAttribute');
+
+    const value = stub.inquireAboutFoodAttribute('s');
+
+    expect(stub.inquireAboutFoodAttribute).not.toThrow();
+    expect(stub.inquireAboutFoodAttribute).toHaveBeenCalledWith('s');
     expect(value).toBe(true);
   });
 });
