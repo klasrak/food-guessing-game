@@ -2,11 +2,12 @@ function isInstanceOf(instance, klass) {
   return instance instanceof klass;
 }
 
-function waitFor(func, time) {
-  setTimeout(func, time);
+function isOk(choice) {
+  if (typeof choice === 'string' && choice === 's') return true;
+  return false;
 }
 
 module.exports = {
   isInstanceOf,
-  waitFor,
+  isOk,
 };

@@ -4,12 +4,7 @@
 /* eslint-disable no-console */
 /* eslint-disable no-restricted-syntax */
 const InvalidInstanceError = require('../errors/InvalidInstanceError');
-const { isInstanceOf } = require('../utils');
-
-function isOk(choice) {
-  if (typeof choice === 'string' && choice === 's') return true;
-  return false;
-}
+const { isInstanceOf, isOk } = require('../utils');
 
 class GuessingGame {
   constructor(category, food, input) {
