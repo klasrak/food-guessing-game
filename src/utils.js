@@ -2,4 +2,11 @@ function isInstanceOf(instance, klass) {
   return instance instanceof klass;
 }
 
-module.exports = isInstanceOf;
+function waitFor(func, time) {
+  setTimeout(func, time);
+}
+
+module.exports = {
+  isInstanceOf,
+  waitFor,
+};

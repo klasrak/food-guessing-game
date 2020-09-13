@@ -1,12 +1,7 @@
 const Category = require('./category/Category');
 const Food = require('./food/Food');
+const Guess = require('./guess/Guess');
 
-const category = new Category('massa');
-const lasanha = new Food('Lasanha');
-const macarrao = new Food('Macarrão');
+const guessingGame = new Guess(Category, Food);
 
-macarrao.insertAttribute('barato');
-
-category.insertFood([lasanha, macarrao]);
-
-console.log(category);
+guessingGame.start();

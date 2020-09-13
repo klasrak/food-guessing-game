@@ -1,7 +1,7 @@
 const InvalidInstanceError = require('../errors/InvalidInstanceError');
 const InvalidTypeError = require('../errors/InvalidTypeError');
 const Food = require('../food/Food');
-const isInstanceOf = require('../utils');
+const { isInstanceOf } = require('../utils');
 
 class Category {
   constructor(name) {
