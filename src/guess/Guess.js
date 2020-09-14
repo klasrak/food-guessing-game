@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 /* eslint-disable no-continue */
 /* eslint-disable array-callback-return */
 /* eslint-disable consistent-return */
@@ -63,14 +64,32 @@ class GuessingGame {
 
   inquireNewFood(food, category) {
     if (category && isInstanceOf(category, this.Category)) {
-      const answer = this.input.question(`Qual prato você pensou? `);
+      let answer = this.input.question(`Qual prato você pensou? `);
+      if (typeof answer !== 'string' || answer === '') {
+        while (true) {
+          answer = this.input.question('Nome inválido, digite novamente ');
+          if (answer !== '') {
+            break;
+          }
+        }
+      }
       const newFood = this.createFood(answer);
       if (!food) {
         return category.foods.push(newFood);
       }
-      const attribute = this.input.question(
+      let attribute = this.input.question(
         `${newFood.name} é _____________ mas ${food.name} não. `
       );
+      if (typeof attribute !== 'string' || attribute === '') {
+        while (true) {
+          attribute = this.input.question(
+            'Atributo inválido, digite novamente '
+          );
+          if (attribute !== '') {
+            break;
+          }
+        }
+      }
       newFood.insertAttribute(attribute);
       return category.foods.push(newFood);
     }
